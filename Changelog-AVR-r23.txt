@@ -1,0 +1,99 @@
+------------------------------------------------------------------------
+r23 | ananhaid | 2010-04-22 10:47:54 +0000 (Thu, 22 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/Locales/zhCN.lua
+   M /trunk/Locales/zhTW.lua
+
+AVR:
+- fix.
+------------------------------------------------------------------------
+r22 | digmouse | 2010-04-22 10:42:18 +0000 (Thu, 22 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/Locales/zhCN.lua
+   M /trunk/Locales/zhTW.lua
+
+Fix zhTW comment error.
+Correct some translations.
+------------------------------------------------------------------------
+r21 | ananhaid | 2010-04-22 10:26:39 +0000 (Thu, 22 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/Locales/zhTW.lua
+
+AVR:
+- fix.
+------------------------------------------------------------------------
+r20 | ananhaid | 2010-04-22 10:03:33 +0000 (Thu, 22 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/AVR.toc
+   A /trunk/Locales/zhCN.lua
+   A /trunk/Locales/zhTW.lua
+   M /trunk/locales.xml
+
+AVR:
+- add zhCN/zhTW.
+------------------------------------------------------------------------
+r18 | olog | 2010-04-15 16:55:30 +0000 (Thu, 15 Apr 2010) | 3 lines
+Changed paths:
+   M /trunk/.pkgmeta
+   M /trunk/3d.lua
+   D /trunk/AVR_BigWigs_Citadel
+   M /trunk/Edit.lua
+   M /trunk/Locales/enUS.lua
+   M /trunk/Mesh.lua
+   M /trunk/MousePaint.lua
+   M /trunk/RangeWarning.lua
+   M /trunk/meshes/DataMesh.lua
+
+- Removed AVR_BigWigs module, use AVR Encounters addon instead
+- Line thickness can be adjusted on mouse paint meshes
+- Bug fixes
+------------------------------------------------------------------------
+r16 | olog | 2010-04-06 20:35:59 +0000 (Tue, 06 Apr 2010) | 4 lines
+Changed paths:
+   M /trunk/3d.lua
+   M /trunk/AVR_BigWigs_Citadel/Festergut.lua
+   M /trunk/AVR_BigWigs_Citadel/Putricide.lua
+   M /trunk/AVR_BigWigs_Citadel/Sindragosa.lua
+   M /trunk/ByteStream.lua
+   M /trunk/Core.lua
+   M /trunk/CoreTools.lua
+   M /trunk/Edit.lua
+   A /trunk/Icons/arrow.tga
+   M /trunk/Locales/enUS.lua
+   M /trunk/Mesh.lua
+   M /trunk/Options.lua
+   M /trunk/RangeWarning.lua
+   M /trunk/Scene.lua
+   M /trunk/SceneManager.lua
+   A /trunk/Textures/filledcircle.tga
+   A /trunk/Textures/marker.tga
+   M /trunk/ZoneInfo.lua
+   A /trunk/meshes/ArrowMesh.lua
+   M /trunk/meshes/FilledCircleMesh.lua
+   M /trunk/meshes/MarkerMesh.lua
+   A /trunk/meshes/TimerCircleMesh.lua
+   M /trunk/meshes/meshes.xml
+
+- Added arrow mesh
+- Added timer circle mesh (used on some bosses in BigWigs scene)
+- Added some descriptions in options
+- Many bug fixes and tweaks 
+------------------------------------------------------------------------
+r14 | olog | 2010-03-27 16:30:50 +0000 (Sat, 27 Mar 2010) | 3 lines
+Changed paths:
+   M /trunk/.pkgmeta
+   M /trunk/3d.lua
+   M /trunk/AVR.toc
+   M /trunk/Core.lua
+   M /trunk/CorePublic.lua
+   M /trunk/Locales/enUS.lua
+   M /trunk/Mesh.lua
+   M /trunk/Options.lua
+   M /trunk/Scene.lua
+   M /trunk/Textures/triangle.tga
+   M /trunk/embeds.xml
+
+- Player height should be correct for druid forms.
+- Import/export of scenes.
+- Meshes can be optionally clipped to screen (ticket 4)
+------------------------------------------------------------------------
