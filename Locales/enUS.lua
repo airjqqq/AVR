@@ -55,6 +55,7 @@ L["UNKNOWN SCENE"] = "This is a scene of type \"%s\". "..
 L["unnamed"] = true
 L["Compass"] = true
 L["Circle"] = true
+L["Polygon"] = true
 L["Filled circle"] = true
 L["Icon"] = true
 L["Link"] = true
@@ -75,6 +76,8 @@ L["UNKNOWN MESH"] = "This is a mesh of type \"%s\". "..
 "This is most likely caused by an outdated version of AVR or a missing plugin."
 
 -- mesh options
+L["Alpha"] = true
+L["InsideAppha"] = true
 L["Number"] = true
 L["Blank"] = true
 L["Target"] = true

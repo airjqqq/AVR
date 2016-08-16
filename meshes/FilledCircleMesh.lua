@@ -47,7 +47,7 @@ function AVRFilledCircleMesh:Unpack(s)
 	self.segments=s.seg or 30
 	if s.utx==nil then self.useTexture=false
 	else self.useTexture=s.utx end
-	
+
 	self.vertices=nil
 end
 
@@ -84,7 +84,7 @@ function AVRFilledCircleMesh:GetOptions()
 				order = 10,
 				width = "full",
 				min = 0.0, max=500, bigStep=1.0
-			},					
+			},
 			segments = {
 				type = "range",
 				name = L["Segments"],
@@ -98,7 +98,7 @@ function AVRFilledCircleMesh:GetOptions()
 				desc = L["Use texture desc"],
 				order = 30,
 				width = "full",
-			} 
+			}
 		}
 	}
 	return o
@@ -125,19 +125,19 @@ function AVRFilledCircleMesh:GenerateMesh()
 		local ox=self.radius
 		local oy=0
 		local x,y
-		
+
 		for i=1,self.segments do
 			a=pi*2/self.segments*i
-			
+
 			x=cos(a)*self.radius
 			y=sin(a)*self.radius
-			
+
 			self:AddTriangle(0,0,0,ox,oy,0,x,y,0)
-			
+
 			ox,oy=x,y
 		end
 	end
-	
+
 	AVRMesh.GenerateMesh(self)
 end
 

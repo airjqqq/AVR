@@ -143,7 +143,7 @@ function AVRLinkMesh:GenerateMesh()
 	self.tri1=t1
 	self.tri2=t2
 	self.text1=text1
-	AVRMesh.GenerateMesh(self)
+	-- AVRMesh.GenerateMesh(self)
 end
 
 function AVRLinkMesh:OnUpdate(threed)
@@ -164,84 +164,85 @@ function AVRLinkMesh:OnUpdate(threed)
 		self:GenerateMesh()
 	end
 	local px,py,pz=threed.playerPosX,threed.playerPosY,threed.playerPosZ
-	local sx,sy,sz=threed:GetUnitPosition(self.followUnit)
-	if sx==0 and sy==0 and sz==0 then
-	else
+	local sx,sy,sz = 0,0,0
+	if self.followUnit then
+		threed:GetUnitPosition(self.followUnit)
+	end
+	if not (sx==0 and sy==0 and sz==0) then
 		sx,sy,sz=sx-px,sy-py,sz-pz
 	end
-	local tx,ty,tz=threed:GetUnitPosition(self.target)
+	local tx,ty,tz=0,0,0
+	if self.target then
+		if self.target="point" then
+			tx,ty,tz=self.meshTranslateX，self.meshTranslateY，self.meshTranslateZ
+		else
+			tx,ty,tz=threed:GetUnitPosition(self.target)
+		end
+	end
 	local tarzero = tx==0 and ty==0 and tz==0
 	tx,ty,tz = tx-px,ty-py,tz-pz
 	local x,y,z = tx-sx,ty-sy,tz-sz
-	local w=self.width/2
 	local l=sqrt(x*x+y*y+z*z)
-	local r = self.blank
-	local textr = math.min(self.num,l)
-	local v1=self.vertices[self.v1]
-	local v2=self.vertices[self.v2]
-	local v3=self.vertices[self.v3]
-	local v4=self.vertices[self.v4]
-	local v5=self.vertices[self.v5]
 	if tarzero or l==0 then
 		self.tri1.visible=false
 		self.tri2.visible=false
 		self.text1.visible=false
 	else
+		local w=self.width/2
+		local r = self.blank
+		local v1=self.vertices[self.v1]
+		local v2=self.vertices[self.v2]
+		local v3=self.vertices[self.v3]
+		local v4=self.vertices[self.v4]
 		local a=math.atan2(ty-sy, tx-sx)
 		local t=math.asin(z/l)
 		local s,c = sin(a),cos(a)
 		local ct=cos(t)
-		local zm = self.meshTranslateZ
-
-		v5[1]=sx+textr*c*ct
-		v5[2]=sy+textr*s*ct
-		v5[3]=sz+textr*z/l+zm
+		local mh = self.meshRotateZ
 		local text1 = self.text1
-		text1.visible=true
-		text1.text=string.format("%.0f",l)
-		do
-			local r,g,b
-			if l>60 then
-				r,g,b = 1,0,0
-			elseif l>40 then
-				r,g,b = 1,(60-l)/20,0
-			elseif l>20 then
-				r,g,b = (l-20)/20,1,0
-			else
-				r,g,b = 0,1,(20-l)/20
+		if self.showNumber then
+
+			local v5=self.vertices[self.v5]
+			local textr = math.min(self.num,l)
+			v5[1]=sx+textr*c*ct
+			v5[2]=sy+textr*s*ct
+			v5[3]=sz+textr*z/l+mh
+			text1.visible=true
+			text1.text=string.format("%.0f",l)
+			do
+				local r,g,b
+				if l>60 then
+					r,g,b = 1,0,0
+				elseif l>40 then
+					r,g,b = 1,(60-l)/20,0
+				elseif l>20 then
+					r,g,b = (l-20)/20,1,0
+				else
+					r,g,b = 0,1,(20-l)/20
+				end
+				text1.r,text1.g,text1.b = r,g,b
 			end
-			text1.r,text1.g,text1.b = r,g,b
+		else
+			text1.visible=false
 		end
 		if l<=r then
 			self.tri1.visible=false
 			self.tri2.visible=false
-			-- v1[1]=0
-			-- v1[2]=0
-			-- v1[3]=0
-			-- v2[1]=0
-			-- v2[2]=0
-			-- v2[3]=0
-			-- v3[1]=0
-			-- v3[2]=0
-			-- v3[3]=0
-			-- v4[1]=0
-			-- v4[2]=0
-			-- v4[3]=0
 		else
 			self.tri1.visible=true
 			self.tri2.visible=true
 			v1[1]=sx-w*s+r*c*ct
 			v1[2]=sy+w*c+r*s*ct
-			v1[3]=sz+r*z/l+zm
+			v1[3]=sz+r*z/l+mh
 			v2[1]=sx+w*s+r*c*ct
 			v2[2]=sy-w*c+r*s*ct
-			v2[3]=sz+r*z/l+zm
+			v2[3]=sz+r*z/l+mh
 			v3[1]=tx-w*s
 			v3[2]=ty+w*c
-			v3[3]=tz+zm
+			v3[3]=tz+mh
 			v4[1]=tx+w*s
 			v4[2]=ty-w*c
-			v4[3]=tz+zm
+			v4[3]=tz+mh
 		end
 	end
 	AVRMesh.OnUpdate(self,threed)
