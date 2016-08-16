@@ -129,6 +129,10 @@ function T:New(frame,addon)
 	s.spriteCount=0
 	s.lastSpriteCount=0
 
+	s.textCache={}
+	s.textCount=0
+	s.lastTextCount=0
+
 	-- these four set properly in MakeCameraMatrix
 	s.screenWidth2=1/2 -- width/2, most of the time needed like that
 	s.screenHeight2=1/2
@@ -429,6 +433,9 @@ function T:ProjectMesh(mesh)
 		for i=1,#vs do
 			v=vs[i]
 			px,py,pz=v[1]+tx,v[2]+ty,v[3]+tz
+			if mesh.name=="Link" then
+				-- print(px,py,pz)
+			end
 			px,py,pz= px*cm1+py*cm2+pz*cm3,
 						px*cm4+py*cm5+pz*cm6+cd, --self.cameraDistance,
 						px*cm7+py*cm8+pz*cm9
@@ -448,6 +455,8 @@ function T:DrawMesh(mesh)
 	local ts=mesh.triangles
 	local ls=mesh.lines
 	local texs=mesh.textures
+	local icons=mesh.icons
+	local texts=mesh.texts
 	local r,g,b,a=mesh.r,mesh.g,mesh.b,mesh.a
 
 	if mesh.clipToScreen then
@@ -490,6 +499,19 @@ function T:DrawMesh(mesh)
 				t.texture,t.a or a,t.r or r,t.g or g,t.b or b)
 		end
 	end
+
+	for i=1,#icons do
+		t=icons[i]
+		if t.visible then
+			self:Draw3DIcon(vs[t.v1],t.texture,t.size,t.ox or 0,t.oy or t.size/2,t.a or a,t.r or r,t.g or g,t.b or b)
+		end
+	end
+	for i=1,#texts do
+		t=texts[i]
+		if t.visible then
+			self:Draw3DText(vs[t.v1],t.text,t.size,t.ox or 0,t.oy or -t.size/2,t.a or a,t.r or r,t.g or g,t.b or b)
+		end
+	end
 end
 
 do
@@ -499,6 +521,7 @@ do
 	local SetTexCoord
 	local SetVertexColor
 	local Show
+	local SetHeight
 
 	function T:DrawTriangle(x1,y1,x2,y2,x3,y3,alpha,red,green,blue,alphaend)
 		local minx=min(x1,x2,x3)
@@ -561,6 +584,7 @@ do
 				SetTexCoord=tex.SetTexCoord
 				SetVertexColor=tex.SetVertexColor
 				Show=tex.Show
+				SetHeight=tex.SetHeight
 			end
 		end
 		Hide(tex)
@@ -571,6 +595,7 @@ do
 		SetTexCoord(tex,x1,x2,x3,y3,x1+y2,x2+y1,y2+x3,y1+y3)
 
 		SetVertexColor(tex,red,green,blue,alpha)
+		SetHeight(tex,10)
 		Show(tex)
 	end
 
@@ -716,6 +741,7 @@ do
 				SetTexCoord=tex.SetTexCoord
 				SetVertexColor=tex.SetVertexColor
 				Show=tex.Show
+				SetHeight=tex.SetHeight
 			end
 		end
 		Hide(tex)
@@ -795,9 +821,85 @@ do
 		)
 
 		SetVertexColor(tex,red,green,blue,alpha)
+		SetHeight(tex,10)
 		Show(tex)
 	end
 
+	function T:Draw3DIcon(v,texture,size,ox,oy,alpha,red,green,blue)
+		self.spriteCount=self.spriteCount+1
+		tex=self.spriteTexCache[self.spriteCount]
+		if not tex then
+			tex=self.frame:CreateTexture("AVR_SPRITE_"..self.spriteCount,"ARTWORK")
+			insert(self.spriteTexCache,tex)
+			if not SetPoint then
+				SetPoint=tex.SetPoint
+				Hide=tex.Hide
+				SetTexture=tex.SetTexture
+				SetTexCoord=tex.SetTexCoord
+				SetVertexColor=tex.SetVertexColor
+				Show=tex.Show
+				SetHeight=tex.SetHeight
+
+			end
+		end
+		Hide(tex)
+		if v[5] < self.projDist then return end
+		local x0,y0 = v[7],v[8]
+		local w = size/2
+		w=w/min(v[5])*self.projDist
+		ox,oy = ox/min(v[5])*self.projDist,oy/min(v[5])*self.projDist
+		SetPoint(tex,"TOPLEFT",self.frame,"CENTER",x0-w+ox,y0-w+oy)
+		SetPoint(tex,"BOTTOMRIGHT",self.frame,"CENTER",x0+w+ox,y0+w+oy)
+		SetTexture(tex,texture)
+		SetTexCoord(tex,0.01,0.99,0.01,0.99)
+		SetVertexColor(tex,red,green,blue,alpha)
+		SetHeight(tex,20)
+		Show(tex)
+	end
+end
+do
+	local SetPoint
+	local Hide
+	local SetText
+	local SetTextHeight
+	local SetVertexColor
+	local Show
+	local SetHeight
+	local SetFont
+	local font = "Fonts\\FRIZQT__.TTF"
+	function T:Draw3DText(v,text,size,ox,oy,alpha,red,green,blue)
+		self.textCount=self.textCount+1
+		tex=self.textCache[self.textCount]
+		if not tex then
+			tex=self.frame:CreateFontString("AVR_TEXT_"..self.textCount,"ARTWORK")
+			insert(self.textCache,tex)
+			if not SetPoint then
+				SetPoint=tex.SetPoint
+				Hide=tex.Hide
+				SetText=tex.SetText
+				SetFont=tex.SetFont
+				SetTextHeight=tex.SetTextHeight
+				SetVertexColor=tex.SetVertexColor
+				Show=tex.Show
+				SetHeight=tex.SetHeight
+
+			end
+		end
+		Hide(tex)
+		if v[5] < self.projDist then return end
+		local x0,y0 = v[7],v[8]
+		local h = size
+		h=h/min(v[5])*self.projDist
+		ox,oy = ox/min(v[5])*self.projDist,oy/min(v[5])*self.projDist
+		SetPoint(tex,"CENTER",self.frame,"CENTER",x0+ox,y0+oy)
+		-- SetTextHeight(tex,h)
+		h=math.floor(h)
+		SetFont(tex,font,h,"OUTLINE")
+		SetText(tex,text)
+		SetVertexColor(tex,red,green,blue,alpha)
+		SetHeight(tex,20)
+		Show(tex)
+	end
 end
 
 function T:DrawLine(sx,sy,ex,ey,lineW,lineAlpha,r,g,b)
@@ -1176,15 +1278,26 @@ function T:ClearAllSprites()
 	self.lastSpriteCount=0
 end
 
+function T:ClearAllTexts()
+	local tex
+	for i=1,#self.textCache do
+		self.textCache[i]:Hide()
+	end
+	self.textCount=0
+	self.lastTextCount=0
+end
+
 function T:StartRender()
 	self:UpdatePlayerHeight()
 	self:MakeCameraMatrix()
 	self.lastLineCount=self.lineCount
 	self.lastTriangleCount=self.triangleCount
 	self.lastSpriteCount=self.spriteCount
+	self.lastTextCount=self.textCount
 	self.lineCount=0
 	self.triangleCount=0
 	self.spriteCount=0
+	self.textCount=0
 end
 function T:EndRender()
 	local tex
@@ -1196,5 +1309,8 @@ function T:EndRender()
 	end
 	for i=self.spriteCount+1,self.lastSpriteCount do
 		self.spriteTexCache[i]:Hide()
+	end
+	for i=self.textCount+1,self.lastTextCount do
+		self.textCache[i]:Hide()
 	end
 end

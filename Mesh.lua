@@ -85,6 +85,8 @@ function AVRMesh:New()
 	s.lines={}			-- model line data used for rendering, list of AVRLine objects
 	s.triangles={}		-- model triangle data used for rendering, list of AVRTriangle objects
 	s.textures={}		-- model texture data used for rendering, list of AVRTexture objects
+	s.icons={} -- add by airj, list of AVRIcon objects
+	s.texts={} -- add by airj, list of AVRText objects
 
 	-- There are two types of deformations. First is done in GenerateMesh whes self.vertices is generated.
 	-- Other is done in OnUpdate or rather in threed.ProjectMesh during the actual rendering. Generally
@@ -227,6 +229,10 @@ function AVRMesh:GetOptions()
 						set = 	function(info,val)
 									val=string.gsub(string.gsub(val,"^%s*",""),"%s*$","")
 									if string.len(val)==0 then val=nil end
+
+									if var and strsub(val,1,1) == "!" then
+										val = UnitGUID(strsub(val,2))
+									end
 									self.followUnit=val
 								end
 					},
@@ -300,7 +306,7 @@ function AVRMesh:GetOptions()
 						name = L["Z Position"],
 						order = 40,
 						width = "full",
-						min = -500, max = 500, bigStep = 0.5,
+						min = -500, max = 500, bigStep = 0.1,
 						set = function(_,val) self.meshTranslateZ=val ; self.vertices=nil end
 					},
 					meshScaleX = {
@@ -686,6 +692,7 @@ function AVRMesh:OnUpdate(threed)
 		self.lines={}
 		self.triangles={}
 		self.textures={}
+		self.icons={}
 		self:GenerateMesh()
 	end
 
@@ -815,6 +822,27 @@ function AVRMesh:AddTexture(tex,y1,z1,x2,y2,z2,x3,y3,z3,x4,y4,z4,x5,y5,z5,textur
 	end
 end
 
+function AVRMesh:AddIcon(icon,y1,z1,texture,size,ox,oy,a,r,g,b)
+	if y1~=nil then
+		local v1=self:AddOrFindVertex(icon,y1,z1)
+		local t=AVRIcon:New(v1,texture,size,ox,oy,a,r,g,b)
+		insert(self.icons,t)
+		return t
+	else
+		insert(self.icons,icon)
+	end
+end
+
+function AVRMesh:AddText(x1,y1,z1,text,size,ox,oy,a,r,g,b)
+	if y1~=nil then
+		local v1=self:AddOrFindVertex(x1,y1,z1)
+		local t=AVRText:New(v1,text,size,ox,oy,a,r,g,b)
+		insert(self.texts,t)
+		return t
+	else
+		insert(self.texts,x1)
+	end
+end
 
 --- Adds several lines from a table of data.
 -- Each element in the table should be another table containing
@@ -1034,6 +1062,120 @@ function AVRTexture:Unpack(bs)
 	self.v5=bs:ReadVariableBytes()
 	local tex=bs:ReadString()
 	self.texture=AVRTextures[tex]
+end
+
+AVRIcon = {Embed = Core.Embed}
+function AVRIcon:New(v1,texture,size,ox,oy,a,r,g,b)
+	if self ~= AVRIcon then return end
+	local s={}
+
+	AVRIcon:Embed(s)
+
+	s.v1 = v1
+	s.texture = texture
+	s.size = size or 1024
+	s.ox=ox
+	s.oy=oy
+	s.r=r
+	s.g=g
+	s.b=b
+	s.a=a
+	s.visible=true
+
+	return s
+end
+
+--- Packs the texture in a byte stream.
+function AVRIcon:Pack(bs)
+	bs:WriteByte((self.r~=nil and 1 or 0)+(self.g~=nil and 2 or 0)+(self.b~=nil and 4 or 0)+(self.a~=nil and 8 or 0)+
+				 (self.visible and 16 or 0))
+	if self.r~=nil then bs:WriteByte(math.floor(self.r*255)) end
+	if self.g~=nil then bs:WriteByte(math.floor(self.g*255)) end
+	if self.b~=nil then bs:WriteByte(math.floor(self.b*255)) end
+	if self.a~=nil then bs:WriteByte(math.floor(self.a*255)) end
+	bs:WriteVariableBytes(self.v1)
+	bs:WriteString(self.texture)
+	bs:WriteVariableBytes(math.floor(self.size))
+	bs:WriteVariableBytes(math.floor(self.ox))
+	bs:WriteVariableBytes(math.floor(self.oy))
+end
+
+--- Unpacks the sprite from a byte stream.
+function AVRIcon:Unpack(bs)
+	local mask=bs:ReadByte()
+	if bit.band(mask,1)~=0 then self.r=bs:ReadByte()/255
+	else self.r=nil end
+	if bit.band(mask,2)~=0 then self.g=bs:ReadByte()/255
+	else self.g=nil end
+	if bit.band(mask,4)~=0 then self.b=bs:ReadByte()/255
+	else self.b=nil end
+	if bit.band(mask,8)~=0 then self.a=bs:ReadByte()/255
+	else self.a=nil end
+	if bit.band(mask,16)~=0 then self.visible=true
+	else self.visible=false end
+	self.v5=bs:ReadVariableBytes()
+	local tex=bs:ReadString()
+	self.texture=tex
+	self.size=bs:ReadVariableBytes()
+	self.ox=bs:ReadVariableBytes()
+	self.oy=bs:ReadVariableBytes()
+end
+
+AVRText = {Embed = Core.Embed}
+function AVRText:New(v1,text,size,ox,oy,a,r,g,b)
+	if self ~= AVRText then return end
+	local s={}
+
+	AVRText:Embed(s)
+
+	s.v1 = v1
+	s.text = text or ""
+	s.size = size or 1024
+	s.ox=ox
+	s.oy=oy
+	s.r=r
+	s.g=g
+	s.b=b
+	s.a=a
+	s.visible=true
+
+	return s
+end
+
+--- Packs the texture in a byte stream.
+function AVRText:Pack(bs)
+	bs:WriteByte((self.r~=nil and 1 or 0)+(self.g~=nil and 2 or 0)+(self.b~=nil and 4 or 0)+(self.a~=nil and 8 or 0)+
+				 (self.visible and 16 or 0))
+	if self.r~=nil then bs:WriteByte(math.floor(self.r*255)) end
+	if self.g~=nil then bs:WriteByte(math.floor(self.g*255)) end
+	if self.b~=nil then bs:WriteByte(math.floor(self.b*255)) end
+	if self.a~=nil then bs:WriteByte(math.floor(self.a*255)) end
+	bs:WriteVariableBytes(self.v1)
+	bs:WriteString(self.text)
+	bs:WriteVariableBytes(math.floor(self.size))
+	bs:WriteVariableBytes(math.floor(self.ox))
+	bs:WriteVariableBytes(math.floor(self.oy))
+end
+
+--- Unpacks the sprite from a byte stream.
+function AVRText:Unpack(bs)
+	local mask=bs:ReadByte()
+	if bit.band(mask,1)~=0 then self.r=bs:ReadByte()/255
+	else self.r=nil end
+	if bit.band(mask,2)~=0 then self.g=bs:ReadByte()/255
+	else self.g=nil end
+	if bit.band(mask,4)~=0 then self.b=bs:ReadByte()/255
+	else self.b=nil end
+	if bit.band(mask,8)~=0 then self.a=bs:ReadByte()/255
+	else self.a=nil end
+	if bit.band(mask,16)~=0 then self.visible=true
+	else self.visible=false end
+	self.v5=bs:ReadVariableBytes()
+	local tex=bs:ReadString()
+	self.text=tex
+	self.size=bs:ReadVariableBytes()
+	self.ox=bs:ReadVariableBytes()
+	self.oy=bs:ReadVariableBytes()
 end
 
 -------------------------------------------------------------------------

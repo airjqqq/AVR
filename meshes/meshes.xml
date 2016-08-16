@@ -10,4 +10,8 @@
 	<Script file="RaidIconMesh.lua"/>
 	<Script file="ArrowMesh.lua"/>
 	<Script file="TimerCircleMesh.lua"/>
+	<Script file="IconMesh.lua"/>
+	<Script file="LinkMesh.lua"/>
+	<Script file="UnitMesh.lua"/>
+	<Script file="PolygonMesh.lua"/>
 </Ui>

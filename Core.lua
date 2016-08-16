@@ -127,6 +127,7 @@ function Core:Clear3D()
 		self.threed:ClearAllLines()
 		self.threed:ClearAllTriangles()
 		self.threed:ClearAllSprites()
+		self.threed:ClearAllTexts()
 	end
 end
 

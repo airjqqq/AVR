@@ -56,6 +56,8 @@ L["unnamed"] = true
 L["Compass"] = true
 L["Circle"] = true
 L["Filled circle"] = true
+L["Icon"] = true
+L["Link"] = true
 L["Cone"] = true
 L["Player marker"] = true
 L["Vargoth"] = true
@@ -73,8 +75,15 @@ L["UNKNOWN MESH"] = "This is a mesh of type \"%s\". "..
 "This is most likely caused by an outdated version of AVR or a missing plugin."
 
 -- mesh options
+L["Number"] = true
+L["Blank"] = true
+L["Target"] = true
+L["Width"] = true
+L["Angle"] = true
 L["Color"] = true
 L["Radius"] = true
+L["Texture"] = true
+L["Size"] = true
 L["Range"] = true
 L["Angle"] = true
 L["Line width"] = true
@@ -83,7 +92,7 @@ L["Follow unit"] = true
 L["Follow unit desc"] = "Makes the mesh follow the specified unit. This only works for people in your group or raid. You can specify 'target' or 'focus' etc but it will only work if that unit is a player character in your raid. The position sliders below should be at 0 to center the mesh on the target."
 L["Attach"] = true
 L["Attach desc"] = "Makes the mesh follow the player and automatically adjusts its position so that it keeps its current relative position to the player."
-L["Detach"] = true 
+L["Detach"] = true
 L["Detach desc"] = "Stops the mesh from follow the player and automatically adjusts its position so that it keeps its current relative position to the player."
 L["Attach rotation"] = true
 L["Detach rotation"] = true
